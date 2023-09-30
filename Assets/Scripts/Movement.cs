@@ -24,10 +24,11 @@ public class Movement : MonoBehaviour
 
     private IEnumerator RepeatMove()
     {
+        yield return new WaitForSecondsRealtime(1f);
         while (true)
         {
             Move();
-            yield return new WaitForSeconds(delayTime);
+            yield return new WaitForSecondsRealtime(delayTime);
         }
     }
 
