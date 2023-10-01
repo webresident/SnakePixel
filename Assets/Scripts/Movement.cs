@@ -1,21 +1,29 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(BodySegmentGenerator))]
 public class Movement : MonoBehaviour
 {
-    [SerializeField] private float delayTime = 1f;
+    [SerializeField] private float delayTime = 0.3f;
+    [SerializeField] private BodySegmentGenerator bodySegmentGenerator;
     private Transform currentTransform;
     private Vector3 direction;
     private Rigidbody2D rb;
-
+    private bool isCollided = false;
+    [SerializeField] private LayerMask ignoreMask;
     private void Start()
     {
         currentTransform = transform;
         direction = currentTransform.right;
         rb = GetComponent<Rigidbody2D>();
+        bodySegmentGenerator = GetComponent<BodySegmentGenerator>();
+
+        bodySegmentGenerator.GenerateBodySegments(3);
         StartCoroutine(RepeatMove());
     }
- 
+
+
     public void ChangeDirection(Vector2 newDirection)
     {
         Vector2 temp = GetStraightDirection(newDirection);
@@ -43,6 +51,7 @@ public class Movement : MonoBehaviour
         {
             Move();
             yield return new WaitForSecondsRealtime(delayTime);
+            
         }
     }
 
@@ -50,5 +59,21 @@ public class Movement : MonoBehaviour
     {
         Vector2 targetPosition = rb.position + new Vector2(direction.x, direction.y);
         rb.MovePosition(targetPosition);
+
+        if(Physics2D.Raycast(rb.position, direction, 1f, ~ignoreMask).collider is null)
+        {
+            MoveBodySegments();
+        }
+
+    }
+    private void MoveBodySegments()
+    {
+        List<Transform> segmentList = bodySegmentGenerator.BodySegments;
+
+        for (int i = segmentList.Count - 1; i > 0; i--)
+        {
+            segmentList[i].position = segmentList[i - 1].position;
+        }
+        segmentList[0].position = currentTransform.position;
     }
 }
