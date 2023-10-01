@@ -18,8 +18,22 @@ public class Movement : MonoBehaviour
  
     public void ChangeDirection(Vector2 newDirection)
     {
-        direction.x = newDirection.x;
-        direction.y = newDirection.y;
+        Vector2 temp = GetStraightDirection(newDirection);
+        if (direction.x == -temp.x || direction.y == -temp.y)
+            return;
+        direction.x = temp.x;
+        direction.y = temp.y;
+    }
+
+    private Vector2 GetStraightDirection(Vector2 input)
+    {
+        Vector2 output;
+        if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+            output = new Vector2(Mathf.Sign(input.x), 0f);
+        else
+            output = new Vector2(0f, Mathf.Sign(input.y));
+
+        return output;
     }
 
     private IEnumerator RepeatMove()

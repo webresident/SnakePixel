@@ -5,7 +5,8 @@ public class SnakeSpawner : MonoBehaviour
 {
     [SerializeField] private GameField gameField;
     [SerializeField] private GameObject snakePrefab;
-    [SerializeField] private MovementInput movementInput;
+    //[SerializeField] private MovementInput movementInput;
+    [SerializeField] private SwipeInput swipeInput;
 
     private List<GameObject> snakeChildren = new List<GameObject>();
 
@@ -15,7 +16,8 @@ public class SnakeSpawner : MonoBehaviour
 
         foreach (var eachChild in snakeChildren)
         {
-            movementInput.OnButtonClicked += eachChild.GetComponent<Movement>().ChangeDirection;
+            //movementInput.OnButtonClicked += eachChild.GetComponent<Movement>().ChangeDirection;
+            swipeInput.OnSwipeEnd += eachChild.GetComponent<Movement>().ChangeDirection;
         }
     }
 
@@ -29,7 +31,8 @@ public class SnakeSpawner : MonoBehaviour
     {
         foreach (var eachChild in snakeChildren)
         {
-            movementInput.OnButtonClicked -= eachChild.GetComponent<Movement>().ChangeDirection;
+            //movementInput.OnButtonClicked -= eachChild.GetComponent<Movement>().ChangeDirection;
+            swipeInput.OnSwipeEnd -= eachChild.GetComponent<Movement>().ChangeDirection;
         }
     }
 }
