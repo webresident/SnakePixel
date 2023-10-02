@@ -17,6 +17,7 @@ public class GameField : MonoBehaviour
     [SerializeField] private FieldSize fieldSize = new FieldSize(21, 12);
     [SerializeField] private GameObject fieldCellPrefab;
     [SerializeField] private GameObject borderCellPrefab;
+    [SerializeField] private GameObject cornerCellPrefab;
 
     private Transform currentTransform;
 
@@ -41,15 +42,26 @@ public class GameField : MonoBehaviour
     }
     private void CreateFieldBorders()
     {
+        Quaternion turnoverRotation = Quaternion.Euler(0, 0, 180);
+
+        Quaternion verticalRotation = currentTransform.rotation * Quaternion.Euler(0, 0, 90);
         for (int i = 0; i < fieldSize.X; i++)
         {
-            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(i + 0.5f, -0.5f, 0), currentTransform.rotation, currentTransform);
-            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(i + 0.5f, FieldSize.Y + 0.5f, 0), currentTransform.rotation, currentTransform);
+            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(i + 0.5f, -0.5f, 0), verticalRotation, currentTransform);
+            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(i + 0.5f, FieldSize.Y + 0.5f, 0), verticalRotation * turnoverRotation, currentTransform);
         }
-        for (int i = -1; i < fieldSize.Y + 1; i++)
+
+        for (int i = 0; i < fieldSize.Y; i++)
         {
             Instantiate(borderCellPrefab, currentTransform.position + new Vector3(-0.5f, i + 0.5f, 0), currentTransform.rotation, currentTransform);
-            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(FieldSize.X + 0.5f, i + 0.5f, 0), currentTransform.rotation, currentTransform);
+            Instantiate(borderCellPrefab, currentTransform.position + new Vector3(FieldSize.X + 0.5f, i + 0.5f, 0), currentTransform.rotation * turnoverRotation, currentTransform);
         }
+
+        Instantiate(cornerCellPrefab, currentTransform.position + new Vector3(-0.5f,  -0.5f, 0), currentTransform.rotation * verticalRotation, currentTransform);
+        Instantiate(cornerCellPrefab, currentTransform.position + new Vector3(-0.5f, fieldSize.Y + 0.5f, 0), currentTransform.rotation, currentTransform);
+        var temp = Instantiate(cornerCellPrefab, currentTransform.position + new Vector3(fieldSize.X + 0.5f, fieldSize.Y + 0.5f, 0), currentTransform.rotation, currentTransform).GetComponent<Transform>();
+        temp.localScale = new Vector3(-temp.localScale.x, temp.localScale.y, temp.localScale.z);
+        temp = Instantiate(cornerCellPrefab, currentTransform.position + new Vector3(fieldSize.X + 0.5f, -0.5f, 0), currentTransform.rotation * verticalRotation, currentTransform).GetComponent<Transform>();
+        temp.localScale = new Vector3(temp.localScale.x, -temp.localScale.y, temp.localScale.z);
     }
 }

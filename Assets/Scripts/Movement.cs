@@ -3,22 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BodySegmentGenerator))]
+[RequireComponent(typeof(Rotation))]
 public class Movement : MonoBehaviour
 {
     [SerializeField] private float delayTime = 0.3f;
     [SerializeField] private BodySegmentGenerator bodySegmentGenerator;
+    [SerializeField] private LayerMask ignoreMask;
+
     private Transform currentTransform;
     private Vector3 direction;
     private Rigidbody2D rb;
-    private bool isCollided = false;
-    [SerializeField] private LayerMask ignoreMask;
+    private Rotation rotation;
     private void Start()
     {
+        
         currentTransform = transform;
         direction = currentTransform.right;
+        rotation = GetComponent<Rotation>();
+        rotation.RotateToDirection(direction);
         rb = GetComponent<Rigidbody2D>();
         bodySegmentGenerator = GetComponent<BodySegmentGenerator>();
-
+        
         bodySegmentGenerator.GenerateBodySegments(3);
         StartCoroutine(RepeatMove());
     }
@@ -31,6 +36,7 @@ public class Movement : MonoBehaviour
             return;
         direction.x = temp.x;
         direction.y = temp.y;
+        rotation.RotateToDirection(direction);
     }
 
     private Vector2 GetStraightDirection(Vector2 input)
