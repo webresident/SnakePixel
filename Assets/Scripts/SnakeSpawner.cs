@@ -23,7 +23,7 @@ public class SnakeSpawner : MonoBehaviour
 
     private void Spawn()
     {
-        GameObject snake = Instantiate(snakePrefab, transform.position + new Vector3(gameField.FieldSize.X / 2 + 0.5f, gameField.FieldSize.Y / 2 + 0.5f, 0f), transform.rotation, transform);
+        GameObject snake = Instantiate(snakePrefab, transform.position + new Vector3(gameField.FieldSize.X / 2, gameField.FieldSize.Y / 2, 0f), transform.rotation, transform);
         snakeChildren.Add(snake);
     }
 

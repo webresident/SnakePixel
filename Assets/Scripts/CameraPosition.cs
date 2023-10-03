@@ -32,7 +32,7 @@ public class CameraPosition : MonoBehaviour
 
     private void InitializeHorizontalOrientation()
     {
-        transform.position = new Vector3((float)gameField.FieldSize.X / 2, (float)gameField.FieldSize.Y / 2, transform.position.z);
+        transform.position = new Vector3((float)gameField.FieldSize.X / 2, (float)gameField.FieldSize.Y / 2 - 0.5f, transform.position.z);
         GetComponent<Camera>().orthographicSize = gameField.FieldSize.Y / 2 + horizontalBorderOffset + 1f;
     }
 

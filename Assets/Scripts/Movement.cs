@@ -14,6 +14,7 @@ public class Movement : MonoBehaviour
     private Vector3 direction;
     private Rigidbody2D rb;
     private Rotation rotation;
+    private bool isMoving = false;
     private void Start()
     {
         
@@ -24,7 +25,7 @@ public class Movement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         bodySegmentGenerator = GetComponent<BodySegmentGenerator>();
         
-        bodySegmentGenerator.GenerateBodySegments(3);
+        bodySegmentGenerator.GenerateBodySegments(4);
         StartCoroutine(RepeatMove());
     }
 
@@ -36,7 +37,7 @@ public class Movement : MonoBehaviour
             return;
         direction.x = temp.x;
         direction.y = temp.y;
-        rotation.RotateToDirection(direction);
+
     }
 
     private Vector2 GetStraightDirection(Vector2 input)
@@ -55,31 +56,59 @@ public class Movement : MonoBehaviour
         yield return new WaitForSecondsRealtime(1f);
         while (true)
         {
-            Move();
-            yield return new WaitForSecondsRealtime(delayTime);
+            StartCoroutine(SmoothMove());
+            if (Physics2D.Raycast(rb.position, direction, 0.75f, ~ignoreMask).collider is null)
+            {
+                
+                rotation.RotateToDirection(direction);
+                MoveBodySegments();
+            }
+            
+            yield return new WaitForSeconds(delayTime);
             
         }
     }
-
-    private void Move()
+    private IEnumerator SmoothMove()
     {
+        isMoving = true;
+        float elapsedTime = 0f;
+        Vector3 startPosition = transform.position;
         Vector2 targetPosition = rb.position + new Vector2(direction.x, direction.y);
-        rb.MovePosition(targetPosition);
-
-        if(Physics2D.Raycast(rb.position, direction, 1f, ~ignoreMask).collider is null)
+        targetPosition = new Vector2(Mathf.Round(targetPosition.x), Mathf.Round(targetPosition.y));
+        while (elapsedTime < delayTime)
         {
-            MoveBodySegments();
+            rb.MovePosition(Vector3.Lerp(startPosition, targetPosition, (elapsedTime / delayTime)));
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
-
+        rb.MovePosition(targetPosition);
+        isMoving = false;
     }
     private void MoveBodySegments()
     {
         List<Transform> segmentList = bodySegmentGenerator.BodySegments;
 
+        if (segmentList.Count < 1)
+            return;
+
         for (int i = segmentList.Count - 1; i > 0; i--)
         {
-            segmentList[i].position = segmentList[i - 1].position;
+            StartCoroutine(SmoothMoveBodySegment(segmentList[i], segmentList[i - 1].position));
         }
-        segmentList[0].position = currentTransform.position;
+        StartCoroutine(SmoothMoveBodySegment(segmentList[0], currentTransform.position));
+    }
+    
+    private IEnumerator SmoothMoveBodySegment(Transform segmentTransform, Vector2 targetPosition)
+    {
+        float elapsedTime = 0f;
+        Vector2 startPosition = segmentTransform.position;
+        targetPosition = new Vector2(Mathf.Round(targetPosition.x), Mathf.Round(targetPosition.y));
+        while (elapsedTime < delayTime)
+        {
+            segmentTransform.position =  Vector3.Lerp(startPosition, targetPosition, (elapsedTime / delayTime));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        segmentTransform.position = targetPosition;
     }
 }
